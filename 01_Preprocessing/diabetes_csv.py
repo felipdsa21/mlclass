@@ -20,7 +20,7 @@ data = pd.read_csv('diabetes_dataset.csv')
 print(' - Criando X e y para o algoritmo de aprendizagem a partir do arquivo diabetes_dataset')
 # Caso queira modificar as colunas consideradas basta algera o array a seguir.
 feature_cols = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 
-                'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age']
+                'BMI', 'DiabetesPedigreeFunction', 'Age']
 X = data[feature_cols]
 y = data.Outcome
 
