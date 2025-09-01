@@ -7,6 +7,7 @@ Atividade para trabalhar a metodologia e as técnicas para a avaliação de clas
 import sys
 
 import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 import requests
@@ -21,15 +22,24 @@ def create_model_tree() -> DecisionTreeClassifier:
 
 
 def prepare_data_svm(df: pd.DataFrame) -> pd.DataFrame:
-    return pd.get_dummies(df[feature_cols], columns=["sex"])
+    return pd.get_dummies(df, columns=["sex"])
 
 
 def create_model_svm() -> DecisionTreeClassifier:
     return SVC(kernel="rbf", C=1.0, gamma="scale", random_state=42)
 
 
-prepare_data = prepare_data_svm
-create_model = create_model_svm
+def prepare_data_knn(df: pd.DataFrame) -> pd.DataFrame:
+    return df.assign(sex=df["sex"].map({"M": 0, "F": 1, "I": 2}))
+
+
+def create_model_knn() -> DecisionTreeClassifier:
+    return KNeighborsClassifier(n_neighbors=5)
+
+
+normalize = True
+prepare_data = prepare_data_knn
+create_model = create_model_knn
 
 
 print("- Lendo o arquivo com o dataset")
@@ -52,6 +62,11 @@ X = data[feature_cols]
 X = prepare_data(X)
 y = data.type
 
+if normalize:
+    X_max = X.max()
+    X_min = X.min()
+    X = (X - X_min) / (X_max - X_min)
+
 # Criando o modelo preditivo para o dataset
 print("- Criando modelo preditivo")
 model = create_model()
@@ -62,6 +77,10 @@ print("- Aplicando modelo e salvando previsões")
 data_app = pd.read_csv("abalone_app.csv")
 data_app = data_app[feature_cols]
 data_app = prepare_data(data_app)
+
+if normalize:
+    data_app = (data_app - X_min) / (X_max - X_min)
+
 y_pred = model.predict(data_app)
 
 predictions = pd.Series(y_pred).to_json(orient="values")
